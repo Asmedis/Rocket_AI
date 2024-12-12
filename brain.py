@@ -1,87 +1,69 @@
 import random
 
+# Constants
 DEFAULT_NEURON_LINKS = 5
 MAX_THINKING_STEPS = 3
-RADATION = 10
+RADIATION = 10
 
-class neuron:
+class Neuron:
     def __init__(self):
-        self.value = random.randint(0,100)
+        self.value = random.randint(0, 100)
         self.links = []
         self.weights = []
 
-class brain:
+class Brain:
     def __init__(self, neuron_amount=600):
-        self.neurons = []
+        self.neurons = [Neuron() for _ in range(neuron_amount)]
         self.neuron_amount = neuron_amount
-        for x in range(neuron_amount):
-            new_neuron = neuron()
-            self.neurons.append(new_neuron)
 
-        for n in self.neurons:
-            for x in range(DEFAULT_NEURON_LINKS):
-                n.links.append(random.randint(0, neuron_amount - 1))
-                n.weights.append((random.random()*2) - 1)
+        # Initialize neuron links and weights
+        for neuron in self.neurons:
+            for _ in range(DEFAULT_NEURON_LINKS):
+                neuron.links.append(random.randint(0, neuron_amount - 1))
+                neuron.weights.append((random.random() * 2) - 1)
 
     def think(self, inputs, outputs):
-        # 1 Neuron > 50: end thinking cycle
-        # 2 - (input amount) Input neurons
-        # (input amount) - (output_amount) Neurons - output neurons
         steps = 0
-        for i in range(len(inputs)):
-            self.neurons[i+1].value = inputs[i]
+
+        # Set input neuron values
+        for i, input_value in enumerate(inputs):
+            self.neurons[i + 1].value = input_value
 
         while steps < MAX_THINKING_STEPS:
-            for n in self.neurons:
-                #print(len(n.links))
-                #for aaa in range(len(n.links)):
-                #    print(n.links[aaa], " ")
-                for x in range(len(n.links)):
-                    self.neurons[n.links[x]].value += n.value * n.weights[x]   #note: should calculate to a new network, because newer calculations influence future one's
-            
-            for n in self.neurons:
-                if n.value > 100:
-                    n.value = 100
-                elif n.value < 0:
-                    n.value = 0
+            new_values = [0] * self.neuron_amount
 
+            # Calculate new values for each neuron
+            for neuron in self.neurons:
+                for link, weight in zip(neuron.links, neuron.weights):
+                    new_values[link] += neuron.value * weight
 
-            if(self.neurons[0].value > 50):
-                out = []
-                for o in range(outputs):
-                    out.append(self.neurons[len(inputs)+ 1 + o].value)
-                return out
-            
+            # Update neuron values and clamp between 0 and 100
+            for i, neuron in enumerate(self.neurons):
+                neuron.value = min(max(new_values[i], 0), 100)
+
+            # Check if the first neuron value exceeds 50
+            if self.neurons[0].value > 50:
+                return [self.neurons[len(inputs) + 1 + o].value for o in range(outputs)]
+
             steps += 1
 
-        out = []
-        for o in range(outputs):
-            out.append(self.neurons[len(inputs)+ 1 + o].value)
-        return out
-    
+        # Return output neuron values after max steps
+        return [self.neurons[len(inputs) + 1 + o].value for o in range(outputs)]
+
     def mutate(self):
-        #mutate current genes
         for neuron in self.neurons:
-            #mutate gene
-            if random.random()*100 <= RADATION:                  #RADIARION neurons will be affected
-                for link in range(len(neuron.links)):                           
-                    if random.random() > 0.5:                    #50% links will mutate
-                        if random.random()*100 <= RADATION:      #RADIATION links will be deleted or new one created
-                            if random.random() > 0.5:            #50% deleted
+            if random.random() * 100 <= RADIATION:
+                for link_index in range(len(neuron.links)):
+                    if random.random() > 0.5:
+                        if random.random() * 100 <= RADIATION:
+                            if random.random() > 0.5:
                                 if len(neuron.links) > 1:
-                                    del neuron.links[link]
-                                    del neuron.weights[link]
+                                    del neuron.links[link_index]
+                                    del neuron.weights[link_index]
                                     return
                             else:
                                 neuron.links.append(random.randint(0, self.neuron_amount - 1))
-                                neuron.weights.append((random.random()*2) - 1)
+                                neuron.weights.append((random.random() * 2) - 1)
                                 return
                         else:
-                            neuron.weights[link] += (random.random() - 0.5)/100 * RADATION
-                    else:
-                        pass
-                                                                
-
-
-
-
+                            neuron.weights[link_index] += (random.random() - 0.5) / 100 * RADIATION
