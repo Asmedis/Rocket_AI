@@ -1,6 +1,6 @@
 import random
 
-DEFAULT_NEURON_LINKS = 8
+DEFAULT_NEURON_LINKS = 5
 MAX_THINKING_STEPS = 3
 RADATION = 10
 
@@ -11,9 +11,9 @@ class neuron:
         self.weights = []
 
 class brain:
-    def __init__(self, neuron_amount=400):
+    def __init__(self, neuron_amount=600):
         self.neurons = []
-        self.neuron_amount = 100
+        self.neuron_amount = neuron_amount
         for x in range(neuron_amount):
             new_neuron = neuron()
             self.neurons.append(new_neuron)
