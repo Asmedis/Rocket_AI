@@ -7,12 +7,12 @@ RADIATION = 10
 
 class Neuron:
     def __init__(self):
-        self.value = random.randint(0, 100)
+        self.value = random.randint(0, 50)
         self.links = []
         self.weights = []
 
 class Brain:
-    def __init__(self, neuron_amount=600):
+    def __init__(self, neuron_amount=100):
         self.neurons = [Neuron() for _ in range(neuron_amount)]
         self.neuron_amount = neuron_amount
 
